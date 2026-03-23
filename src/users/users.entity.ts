@@ -11,7 +11,11 @@ export class User{
     @Column({unique:true})
     email:string;
 
-    @Column()
+    @Column({
+        type:'enum',
+        enum:['admin','customer','saller'],
+        default:'customer'
+    })
     role:string;
 
     @Column({select:false})

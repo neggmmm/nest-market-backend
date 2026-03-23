@@ -24,6 +24,13 @@ export class UsersService {
         }
         return user;
     }
+
+    findByEmail(email:string):Promise<User | null>{
+       return this.userRepository.createQueryBuilder('user')
+       .addSelect("user.password")
+       .where('user.email= :email',{email})
+       .getOne();
+    }
     async createUser(dto:CreateUserDto):Promise<User>{
         const hashedPaswword = await hashpassword(dto.password)
         const user = this.userRepository.create({

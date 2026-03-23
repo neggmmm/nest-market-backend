@@ -4,7 +4,9 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  const cookieParser = require('cookie-parser');
+  app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
+  await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

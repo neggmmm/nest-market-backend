@@ -1,6 +1,7 @@
-import { UserResponseDto } from "./userResponse.dto";
+import { UserResponseDto } from './userResponse.dto';
 
-export class LoginResponseDto{
-    accessToken : string;
-    user: UserResponseDto
+export class LoginResponseDto {
+  accessToken: string;
+  refreshToken: string;
+  user: UserResponseDto;
 }

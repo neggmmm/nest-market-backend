@@ -4,9 +4,9 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
-
+import { validationSchema } from './config/validation'; 
 @Module({
   imports: [AuthModule, UsersModule, 
     ConfigModule.forRoot({
@@ -14,16 +14,20 @@ import configuration from './config/configuration';
       load: [configuration], 
       validationSchema
     }),
-    TypeOrmModule.forRoot({
-    type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'postgres',
-    password: 'negm',
-    database: 'nest_market',
-    entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    synchronize: true, // Set to false in production
-  })],
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('database.host'),
+        port: configService.get('database.port'),
+        username: configService.get('database.username'),
+        password: configService.get('database.password'),
+        database: configService.get('database.name'),
+        autoLoadEntities:true,
+        synchronize:true
+      }),
+    })
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -2,6 +2,7 @@ import {
   Injectable,
   NotAcceptableException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { RegisterUserDto } from './dto/registerUser.dto';
 import { UsersService } from 'src/users/users.service';
@@ -62,6 +63,59 @@ export class AuthService {
     };
   }
 
+  // Validate the refresh token: check if it exists in DB and hasn't expired
+  async validateRefreshToken(token: string): Promise<RefreshToken> {
+    // Find the refresh token in the database, including the related user
+    const stored = await this.refreshTokenRepo.findOne({
+      where: { token },
+      relations: ['user'],
+    });
+
+    // If token not found, throw unauthorized
+    if (!stored) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    // If token has expired, delete it and throw unauthorized
+    if (stored.expiresAt < new Date()) {
+      await this.refreshTokenRepo.delete(stored.id);
+      throw new UnauthorizedException('Refresh token expired');
+    }
+
+    // Return the stored token with user
+    return stored;
+  }
+
+  async refresh(token: string): Promise<{ accessToken: string; refreshToken: string }> {
+    // Validate the incoming refresh token
+    const stored = await this.validateRefreshToken(token);
+
+    // Delete the old refresh token for security (token rotation)
+    await this.refreshTokenRepo.delete(stored.id);
+
+    // Create payload for new tokens
+    const payload = {
+      sub: stored.user.id,
+      email: stored.user.email,
+      role: stored.user.role,
+    };
+
+    // Generate new access token (short-lived)
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+
+    // Generate new refresh token (long-lived)
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+    // Save the new refresh token to the database
+    await this.refreshTokenRepo.save({
+      token: refreshToken,
+      user: stored.user,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+    });
+
+    // Return both new tokens
+    return { accessToken, refreshToken };
+  }
   async me(id: number): Promise<User | null> {
     return this.usersService.findOne(id);
   }

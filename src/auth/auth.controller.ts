@@ -5,7 +5,6 @@ import {
   Post,
   Req,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { RegisterUserDto } from './dto/registerUser.dto';
@@ -20,11 +19,11 @@ import { Repository } from 'typeorm';
 @Controller('auth')
 export class AuthController {
   constructor(
-    @InjectRepository(RefreshToken)
     private readonly authService: AuthService,
+    @InjectRepository(RefreshToken)
     private refreshTokenRepo: Repository<RefreshToken>,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
   @Post('register')
   register(@Body() dto: RegisterUserDto) {
     return this.authService.register(dto);
@@ -37,31 +36,15 @@ export class AuthController {
       httpOnly: true,
       secure: false,
     });
+    res.cookie('refresh_token', result.refreshToken, {
+      httpOnly: true,
+    });
     return result;
   }
 
   @Post('refreshToken')
-  async refresh(@Body('refreshToken') token: string) {
-    const stored = await this.refreshTokenRepo.findOne({
-      where: { token },
-      relations: ['user'],
-    });
-
-    if (!stored) {
-      throw new UnauthorizedException();
-    }
-    if (stored.expiresAt < new Date()) {
-      throw new UnauthorizedException('Token Expired');
-    }
-    const payload = {
-      sub: stored.user.id,
-      email: stored.user.email,
-    };
-    const newAccessToken = this.jwtService.sign(payload);
-
-    return {
-      accessToken: newAccessToken,
-    };
+  refresh(@Body('refreshToken') token: string) {
+    return this.authService.refresh(token);
   }
   @Get('me')
   @UseGuards(AuthGuard)
@@ -70,9 +53,15 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout(@Req() req) {
-    const token = req.cookiees.refresh_token;
-    await this.refreshTokenRepo.delete({ token });
-    return { message: 'Logged out' };
+  async logout(@Req() req, @Res({ passthrough: true }) res) {
+    const token = req.cookies?.refresh_token;
+    if (token) {
+      await this.refreshTokenRepo.delete({ token });
+    }
+    
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    
+    return { message: 'Logged out successfully' };
   }
 }

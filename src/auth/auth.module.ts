@@ -17,7 +17,7 @@ import { RefreshToken } from './refreshToken.entity';
         signOptions: { expiresIn: '1h' },
       }),
     }),
-    TypeOrmModule.forRoot([RefreshToken]),
+    TypeOrmModule.forFeature([RefreshToken]),
   ],
   controllers: [AuthController],
   providers: [AuthService],

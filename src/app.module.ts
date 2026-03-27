@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
 import { validationSchema } from './config/validation'; 
 import { ProductsModule } from './modules/products/products.module';
+import { CartModule } from './modules/cart/cart.module';
 @Module({
   imports: [AuthModule, UsersModule,ProductsModule,
     ConfigModule.forRoot({
@@ -28,7 +29,8 @@ import { ProductsModule } from './modules/products/products.module';
         synchronize:true
       }),
     }),
-    ProductsModule
+    ProductsModule,
+    CartModule
   ],
   controllers: [AppController],
   providers: [AppService],

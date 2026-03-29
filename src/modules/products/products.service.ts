@@ -4,7 +4,6 @@ import { Product } from './product.entity';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { UpdateProductDto } from './dto/updateProduct.dto';
-
 @Injectable()
 export class ProductsService {
     constructor(
@@ -15,8 +14,11 @@ export class ProductsService {
         return this.productRepository.find()
     }
 
-    async createProduct(dto:CreateProductDto){
-        const product = this.productRepository.create(dto)
+    async createProduct(dto:CreateProductDto, file:Express.Multer.File){
+        const imagePath = file? file.path : undefined;
+
+        const product = this.productRepository.create({...dto,image:imagePath})
+
         return this.productRepository.save(product)
     }
 

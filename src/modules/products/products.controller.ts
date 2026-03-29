@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/createProduct.dto';
 import { UpdateProductDto } from './dto/updateProduct.dto';
 import { Product } from './product.entity';
-
+import { FileInterceptor } from '@nestjs/platform-express';
 @Controller('products')
 export class ProductsController {
     constructor(
@@ -20,8 +20,9 @@ export class ProductsController {
     }
 
     @Post()
-    createProduct(@Body() dto:CreateProductDto) :Promise<Product>{
-        return this.productService.createProduct(dto)
+    @UseInterceptors(FileInterceptor('image',{dest:'./uploads/images'}))
+    createProduct(@UploadedFile() file: Express.Multer.File,@Body() dto:CreateProductDto) :Promise<Product>{
+        return this.productService.createProduct(dto,file)
     }
 
     @Patch(':id')

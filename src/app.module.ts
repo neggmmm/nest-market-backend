@@ -9,6 +9,7 @@ import configuration from './config/configuration';
 import { validationSchema } from './config/validation'; 
 import { ProductsModule } from './modules/products/products.module';
 import { CartModule } from './modules/cart/cart.module';
+import { OrderModule } from './modules/order/order.module';
 @Module({
   imports: [AuthModule, UsersModule,ProductsModule,
     ConfigModule.forRoot({
@@ -30,7 +31,8 @@ import { CartModule } from './modules/cart/cart.module';
       }),
     }),
     ProductsModule,
-    CartModule
+    CartModule,
+    OrderModule
   ],
   controllers: [AppController],
   providers: [AppService],

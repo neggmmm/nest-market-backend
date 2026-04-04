@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CartService } from '../cart/cart.service';
 import { Order } from './entity/order.entity';
 import { OrderItem } from './entity/orderItem.entity';
+import { OrderResponseDto } from './dto/orderResponse.dto';
 
 @Injectable()
 export class OrderService {
@@ -15,7 +16,7 @@ export class OrderService {
         private readonly orderItemRepository: Repository<OrderItem>
     ) { }
 
-    async createOrder(userId: number) {
+    async createOrder(userId: number): Promise<OrderResponseDto> {
         const cart = await this.cartService.getCart(userId);
         if (!cart || !cart.items?.length) {
             throw new NotFoundException('Cart not found or empty');
@@ -40,6 +41,31 @@ export class OrderService {
 
         await this.cartService.deleteCart(userId);
 
-        return savedOrder;
+        return {
+            id: savedOrder.id,
+            userId: savedOrder.userId,
+            totalPrice: savedOrder.totalPrice,
+            createdAt: savedOrder.createdAt,
+            items: savedOrder.items.map(item => ({
+                productId: item.product.id,
+                productName: item.product.name,
+                quantity: item.quantity,
+                price: item.price,
+            })),
+        };
     }
+
+    async getAllOrders(userId: number) {
+        return this.orderRepository.find({ where: { userId }, relations: ['items', "items.product"], order: { createdAt: 'DESC' } })
+    }
+
+    async getOrder(userId: number, orderId: number) {
+        const order = await this.orderRepository.findOne({ where: { id: orderId, userId }, relations: ['items', 'items.product'] })
+
+        if (!order) {
+            throw new NotFoundException('Order Not Found')
+        }
+        return order;
+    }
+
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/guard/auth.guard';
 import { OrderService } from './order.service';
 
@@ -9,7 +9,17 @@ export class OrderController {
         private readonly orderServices : OrderService
     ){}
     @Post("/create")
-    confirm(@Req() req){
+    create(@Req() req){
         return this.orderServices.createOrder(req.user.sub)
+    }
+
+    @Get()
+    getAllOrders(@Req() req){
+        return this.orderServices.getAllOrders(req.user.sub)
+    }
+
+    @Get(":id")
+    getOrder(@Req() req, @Param('id', ParseIntPipe) orderId: number,){
+        return this.orderServices.getOrder(req.user.sub, orderId )
     }
 }

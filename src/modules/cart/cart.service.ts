@@ -18,7 +18,7 @@ export class CartService {
     private cartRepository: Repository<Cart>,
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
-  ) {}
+  ) { }
 
   calculateTotal(cart?: Cart | null) {
     if (!cart?.items?.length) return 0;
@@ -62,17 +62,21 @@ export class CartService {
     }
 
     const totalPrice = this.calculateTotal(cart);
-
-    return { cart, totalPrice };
+    return {
+      id: cart.id,
+      userId: cart.userId,
+      items: cart.items.map(item => ({
+        id: item.id,
+        quantity: item.quantity,
+        totalPrice: item.totalPrice,
+        product: item.product,
+      })),
+      totalPrice,
+    };
   }
 
   async updateQuantity(itemId: number, quantity: number, userId: number) {
-    const item = await this.cartItemRepository.findOne({
-      where: { id: itemId },
-      relations: ['cart', 'product'],
-    });
-
-    if (!item) throw new NotFoundException();
+    const item = await this.checkItem(itemId)
 
     if (item.cart.userId !== userId) {
       throw new ForbiddenException();
@@ -89,13 +93,11 @@ export class CartService {
     return { cart, total };
   }
 
+  async deleteCart(userId:number): Promise<void>{
+    await this.cartRepository.delete({userId});
+  }
   async removeItem(itemId: number, userId: number) {
-    const item = await this.cartItemRepository.findOne({
-      where: { id: itemId },
-      relations: ['cart'],
-    });
-
-    if (!item) throw new NotFoundException();
+    const item = await this.checkItem(itemId)
 
     if (item.cart.userId !== userId) {
       throw new ForbiddenException();
@@ -107,5 +109,16 @@ export class CartService {
     const total = this.calculateTotal(cart);
 
     return { cart, total };
+  }
+
+  async checkItem(itemId: number) {
+    const item = await this.cartItemRepository.findOne({
+      where: { id: itemId },
+      relations: ['cart']
+    })
+
+    if (!item) throw new NotFoundException();
+
+    return item;
   }
 }

@@ -22,7 +22,6 @@ export class User {
     @Column({ select: false })
     password: string;
 
-    // A user can have one or more carts; adjust to OneToOne if required by business rules.
     @OneToOne(() => Cart, cart => cart.user)
-    carts: Cart;
+    cart: Cart;
 }

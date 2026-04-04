@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../users/users.entity";
 import { CartItem } from "./cartItem.entity";
 
@@ -11,8 +11,9 @@ export class Cart {
     @Column()
     userId: number;
 
-    // Relation to user; one user can own multiple carts (or one cart in your design).
-    @ManyToOne(() => User, user => user.carts, { onDelete: 'CASCADE' })
+    // Relation to user; each user has exactly one cart in this design.
+    @OneToOne(() => User, user => user.cart, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'userId' })
     user: User;
 
     // Items inside this cart.

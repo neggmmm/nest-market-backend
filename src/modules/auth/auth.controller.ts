@@ -5,6 +5,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { RegisterUserDto } from './dto/registerUser.dto';
@@ -43,7 +44,13 @@ export class AuthController {
   }
 
   @Post('refreshToken')
-  refresh(@Body('refreshToken') token: string) {
+  refresh(@Req() req) {
+    const token = req.cookies?.refresh_token;
+
+    if (!token) {
+      throw new UnauthorizedException('No refresh token');
+    }
+
     return this.authService.refresh(token);
   }
   @Get('me')
@@ -58,10 +65,10 @@ export class AuthController {
     if (token) {
       await this.refreshTokenRepo.delete({ token });
     }
-    
+
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
-    
+
     return { message: 'Logged out successfully' };
   }
 }

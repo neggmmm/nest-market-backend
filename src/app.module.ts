@@ -26,8 +26,8 @@ import { OrderModule } from './modules/order/order.module';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.name'),
-        autoLoadEntities:true,
-        synchronize:true
+        autoLoadEntities: configService.get('NODE_ENV') === 'development',
+        synchronize:false
       }),
     }),
     ProductsModule,

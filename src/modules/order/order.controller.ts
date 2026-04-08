@@ -1,5 +1,5 @@
 import { Controller, Get, Param, ParseIntPipe, Post, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '../auth/guard/auth.guard';
+import { AuthGuard } from '../auth/presentation/http/guard/auth.guard';
 import { OrderService } from './order.service';
 
 @Controller('order')

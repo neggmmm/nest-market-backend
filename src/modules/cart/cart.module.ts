@@ -5,7 +5,7 @@ import { CartService } from './cart.service';
 import { Cart } from './entity/cart.entity';
 import { CartItem } from './entity/cartItem.entity';
 import { AuthModule } from '../auth/auth.module';
-import { AuthGuard } from '../auth/guard/auth.guard';
+import { AuthGuard } from '../auth/presentation/http/guard/auth.guard';
 import { Product } from '../products/product.entity';
 
 @Module({

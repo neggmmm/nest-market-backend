@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '../auth/guard/auth.guard';
+import { AuthGuard } from '../auth/presentation/http/guard/auth.guard';
 import { CartService } from './cart.service';
 
 @Controller('cart')

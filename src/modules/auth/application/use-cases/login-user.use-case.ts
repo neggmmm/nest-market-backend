@@ -1,42 +1,48 @@
-import { Inject, Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
-import { LoginResponseDto } from '../../dto/loginResponse.dto';
-import { LoginUserDto } from '../../dto/loginUser.dto';
+﻿import { Inject, Injectable, NotAcceptableException, NotFoundException } from "@nestjs/common";
+import { LoginUserDto } from "../../presentation/http/dto/loginUser.dto";
+import { LoginResponseDto } from "../../presentation/http/dto/loginResponse.dto";
 import {
   AUTH_USER_READER,
-} from '../ports/auth-user-reader.port';
-import type { AuthUserReader } from '../ports/auth-user-reader.port';
-import { PASSWORD_HASHER } from '../ports/password-hasher.port';
-import type { PasswordHasher } from '../ports/password-hasher.port';
+  type AuthUserReader,
+} from "../ports/auth-user-reader.port";
+import {
+  PASSWORD_HASHER,
+  type PasswordHasher,
+} from "../ports/password-hasher.port";
 import {
   TOKEN_PROVIDER,
-} from '../ports/token-provider.port';
-import type { TokenProvider } from '../ports/token-provider.port';
-import type { RefreshTokenRepository } from '../../domain/repositories/refreshToken.repository';
-import { InjectRefreshTokenRepository } from '../ports/refresh-token-repository.token';
+  type TokenProvider,
+} from "../ports/token-provider.port";
+import { InjectRefreshTokenRepository } from "../ports/refresh-token-repository.token";
+import type { RefreshTokenRepository } from "../../domain/repositories/refreshToken.repository";
 
 @Injectable()
 export class LoginUserUseCase {
   constructor(
-    @Inject(AUTH_USER_READER)
-    private readonly authUserReader: AuthUserReader,
     @Inject(PASSWORD_HASHER)
     private readonly passwordHasher: PasswordHasher,
+    @Inject(AUTH_USER_READER)
+    private readonly authUserReader: AuthUserReader,
     @Inject(TOKEN_PROVIDER)
     private readonly tokenProvider: TokenProvider,
     @InjectRefreshTokenRepository()
-    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly refreshTokenRepository: RefreshTokenRepository
   ) {}
 
   async execute(dto: LoginUserDto): Promise<LoginResponseDto> {
     const user = await this.authUserReader.findByEmail(dto.email);
 
     if (!user || !user.password) {
-      throw new NotFoundException('User Not Found');
+      throw new NotFoundException("Email or password is wrong");
     }
 
-    const validPassword = await this.passwordHasher.compare(dto.password, user.password);
-    if (!validPassword) {
-      throw new NotAcceptableException('password is wrong!');
+    const isPasswordValid = await this.passwordHasher.compare(
+      dto.password,
+      user.password
+    );
+
+    if (!isPasswordValid) {
+      throw new NotFoundException("Email or password is wrong");
     }
 
     const tokens = this.tokenProvider.generateTokens({

@@ -8,8 +8,8 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { RegisterUserDto } from '../../dto/registerUser.dto';
-import { LoginUserDto } from '../../dto/loginUser.dto';
+import { RegisterUserDto } from './dto/registerUser.dto';
+import { LoginUserDto } from './dto/loginUser.dto';
 import { RegisterUserUseCase } from '../../application/use-cases/register-user.use-case';
 import { LoginUserUseCase } from '../../application/use-cases/login-user.use-case';
 import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case';

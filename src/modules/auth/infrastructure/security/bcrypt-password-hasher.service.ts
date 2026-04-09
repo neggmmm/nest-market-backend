@@ -7,4 +7,7 @@ export class BcryptPasswordHasherService implements PasswordHasher {
   async compare(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
   }
+  async hash(password: string, rounds: number): Promise<string> {
+    return bcrypt.hash(password, rounds);
+  }
 }

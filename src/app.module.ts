@@ -10,10 +10,11 @@ import { validationSchema } from './config/validation';
 import { ProductsModule } from './modules/products/products.module';
 import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
+
 @Module({
-  imports: [AuthModule, UsersModule,ProductsModule,
+  imports: [
     ConfigModule.forRoot({
-      isGlobal:true,
+      isGlobal: true,
       load: [configuration], 
       validationSchema
     }),
@@ -26,10 +27,12 @@ import { OrderModule } from './modules/order/order.module';
         username: configService.get('database.username'),
         password: configService.get('database.password'),
         database: configService.get('database.name'),
-        autoLoadEntities: configService.get('NODE_ENV') === 'development',
-        synchronize:false
+        autoLoadEntities: true,
+        synchronize: false
       }),
     }),
+    AuthModule,
+    UsersModule,
     ProductsModule,
     CartModule,
     OrderModule

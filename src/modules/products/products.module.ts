@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { PRODUCT_REPOSITORY } from './domain/repositories/product.repository';
 import { FILE_STORAGE } from './application/ports/file-storage.port';
 import { ProductOrmEntity } from './infrastructure/persistence/typeorm/product.orm-entity';
 import { TypeormProductRepository } from './infrastructure/persistence/typeorm/typeorm-product.repository';
-import { LocalFileStorageService } from './infrastructure/storage/local-file-storage.service';
+import { S3FileStorageService } from './infrastructure/storage/s3-file-storage.service';
 import { ListProductsUseCase } from './application/use-cases/list-products.use-case';
 import { GetProductUseCase } from './application/use-cases/get-product.use-case';
 import { CreateProductUseCase } from './application/use-cases/create-product.use-case';
@@ -13,7 +14,7 @@ import { DeleteProductUseCase } from './application/use-cases/delete-product.use
 import { ProductsController } from './presentation/http/products.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductOrmEntity])],
+  imports: [ConfigModule, TypeOrmModule.forFeature([ProductOrmEntity])],
   controllers: [ProductsController],
   providers: [
     ListProductsUseCase,
@@ -22,14 +23,14 @@ import { ProductsController } from './presentation/http/products.controller';
     UpdateProductUseCase,
     DeleteProductUseCase,
     TypeormProductRepository,
-    LocalFileStorageService,
+    S3FileStorageService,
     {
       provide: PRODUCT_REPOSITORY,
       useExisting: TypeormProductRepository,
     },
     {
       provide: FILE_STORAGE,
-      useExisting: LocalFileStorageService,
+      useExisting: S3FileStorageService,
     },
   ],
 })

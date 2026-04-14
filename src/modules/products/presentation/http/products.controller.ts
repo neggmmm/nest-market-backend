@@ -11,6 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { ListProductsUseCase } from '../../application/use-cases/list-products.use-case';
 import { GetProductUseCase } from '../../application/use-cases/get-product.use-case';
 import { CreateProductUseCase } from '../../application/use-cases/create-product.use-case';
@@ -41,7 +42,19 @@ export class ProductsController {
   }
 
   @Post()
-  @UseInterceptors(FileInterceptor('image', { dest: './uploads/images' }))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 },
+      fileFilter: (_req, file, callback) => {
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!allowedMimeTypes.includes(file.mimetype)) {
+          return callback(new Error('Only jpeg, png, and webp images are allowed'), false);
+        }
+        callback(null, true);
+      },
+    }),
+  )
   createProduct(
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: CreateProductDto,

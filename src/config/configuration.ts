@@ -9,5 +9,12 @@ export default()=> ({
     },
     jwt:{
         secretKey: process.env.JWT_SECRET_KEY!,
+    },
+    aws:{
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_KEY,
+        region: process.env.AWS_REGION,
+        bucket: process.env.AWS_S3_BUCKET,
+        productsPrefix: process.env.AWS_S3_PRODUCTS_PREFIX || 'products',
     }
 })

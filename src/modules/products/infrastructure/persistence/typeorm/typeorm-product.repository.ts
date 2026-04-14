@@ -16,9 +16,13 @@ export class TypeormProductRepository implements ProductRepository {
     private readonly ormRepository: Repository<ProductOrmEntity>,
   ) {}
 
-  async findAll(): Promise<Product[]> {
-    const products = await this.ormRepository.find();
-    return products.map((product) => this.toDomain(product));
+  async findAll(page:number, limit: number): Promise<Product[]> {
+    const products = await this.ormRepository.find({
+      skip: (page -1 ) * limit,
+      take: limit,
+      order: {id: 'ASC'}
+    });
+    return products.map(this.toDomain);
   }
 
   async findById(id: number): Promise<Product | null> {

@@ -14,15 +14,35 @@ export class TypeormProductRepository implements ProductRepository {
   constructor(
     @InjectRepository(ProductOrmEntity)
     private readonly ormRepository: Repository<ProductOrmEntity>,
-  ) {}
+  ) { }
 
-  async findAll(page:number, limit: number): Promise<Product[]> {
-    const products = await this.ormRepository.find({
-      skip: (page -1 ) * limit,
-      take: limit,
-      order: {id: 'ASC'}
-    });
-    return products.map(this.toDomain);
+  async findAll(page: number, limit: number, sortBy:string, order:'ASC' | 'DESC', minPrice?: number, maxPrice?: number): Promise<{ data: Product[]; total: number }> {
+    const query = this.ormRepository.createQueryBuilder('product')
+      .select(['product.id', 'product.name', 'product.price', 'product.image'])
+
+    if (minPrice) {
+      query.andWhere('product.price>= :minPrice', { minPrice })
+    }
+
+    if (maxPrice) {
+      query.andWhere('product.price<= :maxPrice', { maxPrice })
+    }
+
+    const allowedSortFields = ['id', 'price', 'name'];
+
+    if (!allowedSortFields.includes(sortBy)) {
+      sortBy = 'id';
+    }
+    query.orderBy(`product.${sortBy}`, order)
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [products, total] = await query.getManyAndCount()
+
+    return {
+      data: products.map(this.toDomain),
+      total
+    }
   }
 
   async findById(id: number): Promise<Product | null> {

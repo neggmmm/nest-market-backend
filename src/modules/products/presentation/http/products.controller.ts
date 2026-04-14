@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -32,8 +33,22 @@ export class ProductsController {
   ) {}
 
   @Get()
-  getAllProducts(): Promise<Product[]> {
-    return this.listProductsUseCase.execute();
+  async getAllProducts(
+    @Query('page',ParseIntPipe) page: number =1,
+    @Query('limit', ParseIntPipe) limit : number = 2,
+    @Query('minPrice') minPrice?: number,
+    @Query('maxPrice') maxPrice?: number,
+    @Query('sortBy') sortBy: string = 'id',
+    @Query('order') order: 'ASC' | 'DESC' = 'ASC'
+  ): Promise<{data:Product[]; page:number;  limit:number;  total:number}> {
+    limit = Math.min(limit,50)
+    const result = await this.listProductsUseCase.execute(page,limit,sortBy,order,minPrice, maxPrice);
+    return {
+      data : result.data,
+      page,
+      limit,
+      total : result.total
+    }
   }
 
   @Get(':id')

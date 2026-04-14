@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CartItem } from 'src/modules/cart/entity/cartItem.entity';
 
 @Entity('products')
@@ -6,9 +6,11 @@ export class ProductOrmEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index()
   @Column()
   name: string;
 
+  @Index()
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 

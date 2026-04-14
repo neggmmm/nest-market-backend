@@ -12,7 +12,7 @@ export class ListProductsUseCase {
     private readonly productRepository: ProductRepository,
   ) {}
 
-  execute(): Promise<Product[]> {
-    return this.productRepository.findAll();
+  async execute(page:number, limit:number,sortBy:string,order:'ASC' | 'DESC',minPrice?: number, maxPrice?: number): Promise<{data:Product[]; total: number}> {
+    return await this.productRepository.findAll(page,limit,sortBy,order, minPrice, maxPrice);
   }
 }

@@ -3,7 +3,7 @@ import { Product } from '../entities/product';
 export const PRODUCT_REPOSITORY = Symbol('PRODUCT_REPOSITORY');
 
 export interface ProductRepository {
-  findAll(page:number, limit:number): Promise<Product[]>;
+  findAll(page:number, limit:number,sortBy:string,order: 'ASC' | 'DESC', minPrice?:number, maxPrice?:number): Promise<{data: Product[]; total: number}>;
   findById(id: number): Promise<Product | null>;
   create(data: CreateProductRepositoryData): Promise<Product>;
   update(id: number, data: UpdateProductRepositoryData): Promise<Product>;

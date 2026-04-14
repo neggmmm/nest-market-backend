@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
@@ -34,15 +35,16 @@ export class ProductsController {
 
   @Get()
   async getAllProducts(
-    @Query('page',ParseIntPipe) page: number =1,
-    @Query('limit', ParseIntPipe) limit : number = 2,
+    @Query('page',new DefaultValuePipe(1),ParseIntPipe) page: number =1,
+    @Query('limit',new DefaultValuePipe(10), ParseIntPipe) limit : number = 2,
     @Query('minPrice') minPrice?: number,
     @Query('maxPrice') maxPrice?: number,
     @Query('sortBy') sortBy: string = 'id',
-    @Query('order') order: 'ASC' | 'DESC' = 'ASC'
+    @Query('order') order: 'ASC' | 'DESC' = 'ASC',
+    @Query('search') search?: string,
   ): Promise<{data:Product[]; page:number;  limit:number;  total:number}> {
     limit = Math.min(limit,50)
-    const result = await this.listProductsUseCase.execute(page,limit,sortBy,order,minPrice, maxPrice);
+    const result = await this.listProductsUseCase.execute(page,limit,sortBy,order,minPrice, maxPrice,search);
     return {
       data : result.data,
       page,

@@ -16,10 +16,16 @@ export class TypeormProductRepository implements ProductRepository {
     private readonly ormRepository: Repository<ProductOrmEntity>,
   ) { }
 
-  async findAll(page: number, limit: number, sortBy:string, order:'ASC' | 'DESC', minPrice?: number, maxPrice?: number): Promise<{ data: Product[]; total: number }> {
+  async findAll(page: number, limit: number, sortBy: string, order: 'ASC' | 'DESC', minPrice?: number, maxPrice?: number, search?: string): Promise<{ data: Product[]; total: number }> {
     const query = this.ormRepository.createQueryBuilder('product')
       .select(['product.id', 'product.name', 'product.price', 'product.image'])
 
+    if (search) {
+      query.andWhere('LOWER(product.name) LIKE LOWER(:search)', {
+        search: `%${search}%`,
+      });
+    }
+    
     if (minPrice) {
       query.andWhere('product.price>= :minPrice', { minPrice })
     }

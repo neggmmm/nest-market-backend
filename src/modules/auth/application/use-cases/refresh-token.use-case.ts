@@ -1,11 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import {
-  AUTH_USER_READER,
-} from '../ports/auth-user-reader.port';
+import {AUTH_USER_READER} from '../ports/auth-user-reader.port';
 import type { AuthUserReader } from '../ports/auth-user-reader.port';
-import {
-  TOKEN_PROVIDER,
-} from '../ports/token-provider.port';
+import {TOKEN_PROVIDER} from '../ports/token-provider.port';
 import type { TokenProvider } from '../ports/token-provider.port';
 import type { RefreshTokenRepository } from '../../domain/repositories/refreshToken.repository';
 import { InjectRefreshTokenRepository } from '../ports/refresh-token-repository.token';

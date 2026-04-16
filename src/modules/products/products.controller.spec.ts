@@ -37,12 +37,12 @@ describe('ProductsController', () => {
 
   it('delegates listing products to the list use case', async () => {
     const products = [{ id: 1, name: 'Keyboard', price: 1200, image: 'img.png' }];
-    listProductsUseCase.execute.mockResolvedValue(products);
+    listProductsUseCase.execute.mockResolvedValue({ data: products, total: 1 });
 
     const result = await controller.getAllProducts();
 
     expect(listProductsUseCase.execute).toHaveBeenCalledTimes(1);
-    expect(result).toEqual(products);
+    expect(result).toEqual({ data: products, page: 1, limit: 10, total: 1 });
   });
 
   it('passes route id to the get product use case', async () => {

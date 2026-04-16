@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  DefaultValuePipe,
   Delete,
   Get,
   Param,
@@ -21,6 +20,7 @@ import { UpdateProductUseCase } from '../../application/use-cases/update-product
 import { DeleteProductUseCase } from '../../application/use-cases/delete-product.use-case';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ListProductsQueryDto } from './dto/list-products-query.dto';
 import { Product } from '../../domain/entities/product';
 
 @Controller('products')
@@ -35,22 +35,17 @@ export class ProductsController {
 
   @Get()
   async getAllProducts(
-    @Query('page',new DefaultValuePipe(1),ParseIntPipe) page: number =1,
-    @Query('limit',new DefaultValuePipe(10), ParseIntPipe) limit : number = 2,
-    @Query('minPrice') minPrice?: number,
-    @Query('maxPrice') maxPrice?: number,
-    @Query('sortBy') sortBy: string = 'id',
-    @Query('order') order: 'ASC' | 'DESC' = 'ASC',
-    @Query('search') search?: string,
-  ): Promise<{data:Product[]; page:number;  limit:number;  total:number}> {
-    limit = Math.min(limit,50)
-    const result = await this.listProductsUseCase.execute(page,limit,sortBy,order,minPrice, maxPrice,search);
+    @Query() query: ListProductsQueryDto = new ListProductsQueryDto(),
+  ): Promise<{ data: Product[]; page: number; limit: number; total: number }> {
+    query.limit = Math.min(query.limit, 50);
+    const result = await this.listProductsUseCase.execute(query);
+
     return {
-      data : result.data,
-      page,
-      limit,
-      total : result.total
-    }
+      data: result.data,
+      page: query.page,
+      limit: query.limit,
+      total: result.total,
+    };
   }
 
   @Get(':id')

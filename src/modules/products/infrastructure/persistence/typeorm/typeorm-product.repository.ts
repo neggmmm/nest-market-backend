@@ -3,11 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
   CreateProductRepositoryData,
+  ListProductQueryData,
   ProductRepository,
   UpdateProductRepositoryData,
 } from '../../../domain/repositories/product.repository';
 import { Product } from '../../../domain/entities/product';
 import { ProductOrmEntity } from './product.orm-entity';
+import { PriceSpecifictaion } from './queries/price.spec';
+import { SearchSepecification } from './queries/search.spec';
 
 @Injectable()
 export class TypeormProductRepository implements ProductRepository {
@@ -16,39 +19,43 @@ export class TypeormProductRepository implements ProductRepository {
     private readonly ormRepository: Repository<ProductOrmEntity>,
   ) { }
 
-  async findAll(page: number, limit: number, sortBy: string, order: 'ASC' | 'DESC', minPrice?: number, maxPrice?: number, search?: string): Promise<{ data: Product[]; total: number }> {
-    const query = this.ormRepository.createQueryBuilder('product')
-      .select(['product.id', 'product.name', 'product.price', 'product.image'])
+  async findAll(query: ListProductQueryData): Promise<{ data: Product[]; total: number }> {
+    const {
+      page,
+      limit,
+      sortBy = 'id',
+      order = 'ASC',
+      minPrice,
+      maxPrice,
+      search,
+    } = query;
 
-    if (search) {
-      query.andWhere('LOWER(product.name) LIKE LOWER(:search)', {
-        search: `%${search}%`,
-      });
-    }
-    
-    if (minPrice) {
-      query.andWhere('product.price>= :minPrice', { minPrice })
-    }
+    const qb = this.ormRepository.createQueryBuilder('product')
+      .select(['product.id', 'product.name', 'product.price', 'product.image']);
 
-    if (maxPrice) {
-      query.andWhere('product.price<= :maxPrice', { maxPrice })
-    }
+    new SearchSepecification(search).apply(qb)
+    new PriceSpecifictaion(minPrice, maxPrice).apply(qb)
 
     const allowedSortFields = ['id', 'price', 'name'];
+    const sortField = allowedSortFields.includes(sortBy) ? sortBy : 'id';
 
-    if (!allowedSortFields.includes(sortBy)) {
-      sortBy = 'id';
-    }
-    query.orderBy(`product.${sortBy}`, order)
+    qb.orderBy(`product.${sortField}`, order)
       .skip((page - 1) * limit)
       .take(limit);
 
-    const [products, total] = await query.getManyAndCount()
+    const [products, total] = await qb.getManyAndCount();
 
     return {
       data: products.map(this.toDomain),
-      total
-    }
+      total,
+    };
+  }
+
+  async transaction<T>(cb: (repo: ProductRepository) => Promise<T>): Promise<T> {
+    return this.ormRepository.manager.transaction(async (manager) => {
+      const repo = new TypeormProductRepository(manager.getRepository(ProductOrmEntity));
+      return cb(repo);
+    });
   }
 
   async findById(id: number): Promise<Product | null> {

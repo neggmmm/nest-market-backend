@@ -58,12 +58,12 @@ describe('Products use cases', () => {
       new Product(2, 'Mouse', 800, 'uploads/images/mouse.png'),
     ];
 
-    productRepository.findAll.mockResolvedValue(products);
+    productRepository.findAll.mockResolvedValue({ data: products, total: 2 });
 
     const result = await listProductsUseCase.execute();
 
     expect(productRepository.findAll).toHaveBeenCalledTimes(1);
-    expect(result).toEqual(products);
+    expect(result).toEqual({ data: products, total: 2 });
   });
 
   it('creates a product and stores the uploaded image path', async () => {

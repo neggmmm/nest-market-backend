@@ -7,10 +7,10 @@ async function bootstrap() {
   const cookieParser = require('cookie-parser');
   app.enableCors({
     origin: 'http://localhost:4200',
-    credentials: true
+    credentials: true,
   });
   app.use(cookieParser());
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.use('/uploads', express.static('uploads'))
   await app.listen(process.env.PORT ?? 3000);
 }

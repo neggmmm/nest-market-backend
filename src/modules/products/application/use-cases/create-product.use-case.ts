@@ -6,6 +6,7 @@ import {
 } from '../../domain/repositories/product.repository';
 import type { ProductRepository } from '../../domain/repositories/product.repository';
 import { Product } from '../../domain/entities/product';
+import { DataSource } from 'typeorm';
 
 export interface CreateProductCommand {
   name: string;
@@ -20,15 +21,19 @@ export class CreateProductUseCase {
     private readonly productRepository: ProductRepository,
     @Inject(FILE_STORAGE)
     private readonly fileStorage: FileStorage,
-  ) {}
+    private readonly dataSource: DataSource,
+  ) { }
 
   async execute(command: CreateProductCommand): Promise<Product> {
-    const image = await this.fileStorage.save(command.file);
+    let image: string | undefined;
+      return await this.productRepository.transaction(async (repo) => {
+        image = await this.fileStorage.save(command.file);
 
-    return this.productRepository.create({
-      name: command.name,
-      price: command.price,
-      image,
-    });
+        return repo.create({
+          name: command.name,
+          price: command.price,
+          image,
+        });
+      });
   }
 }

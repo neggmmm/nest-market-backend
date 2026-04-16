@@ -11,7 +11,7 @@ import type { RefreshTokenRepository } from "../../domain/repositories/refreshTo
 import { InjectRefreshTokenRepository } from "../ports/refresh-token-repository.token";
 
 @Injectable()
-export class Login {
+export class LoginUserUseCase {
     constructor(
         @Inject(PASSWORD_HASHER)
         private readonly passwordHasher: PasswordHasher,

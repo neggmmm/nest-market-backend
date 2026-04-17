@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Cart } from "./cart.entity";
-import { Product } from "../../products/product.entity";
+import { ProductOrmEntity } from '../../products/infrastructure/persistence/typeorm/product.orm-entity';
 
 @Entity()
 export class CartItem {
@@ -16,8 +16,8 @@ export class CartItem {
     totalPrice: number;
 
     // Association to Product entity. Each cart item belongs to one product.
-    @ManyToOne(() => Product, product => product.cartItems, { eager: true, onDelete: 'RESTRICT' })
-    product: Product;
+    @ManyToOne(() => ProductOrmEntity, product => product.cartItems, { eager: true, onDelete: 'RESTRICT' })
+    product: ProductOrmEntity;
 
     // Association to Cart entity. Each cart item belongs to one cart.
     @ManyToOne(() => Cart, cart => cart.items, { onDelete: 'CASCADE' })

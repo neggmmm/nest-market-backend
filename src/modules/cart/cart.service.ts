@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CartItem } from './entity/cartItem.entity';
 import { Repository } from 'typeorm';
 import { Cart } from './entity/cart.entity';
-import { Product } from '../products/product.entity';
+import { ProductOrmEntity } from '../products/infrastructure/persistence/typeorm/product.orm-entity';
 import { CartResponseDto } from './dto/cartResponse.dto';
 
 @Injectable()
@@ -17,8 +17,8 @@ export class CartService {
     private cartItemRepository: Repository<CartItem>,
     @InjectRepository(Cart)
     private cartRepository: Repository<Cart>,
-    @InjectRepository(Product)
-    private productRepository: Repository<Product>,
+    @InjectRepository(ProductOrmEntity)
+    private productRepository: Repository<ProductOrmEntity>,
   ) { }
 
   calculateTotal(cart?: Cart | null) {

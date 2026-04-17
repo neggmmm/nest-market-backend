@@ -1,4 +1,4 @@
-import { Product } from "src/modules/products/product.entity";
+import { ProductOrmEntity } from '../../products/infrastructure/persistence/typeorm/product.orm-entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Order } from "./order.entity";
 
@@ -8,8 +8,8 @@ export class OrderItem{
     @PrimaryGeneratedColumn()
     id:number;
 
-    @ManyToOne(()=>Product)
-    product: Product;
+    @ManyToOne(()=>ProductOrmEntity)
+    product: ProductOrmEntity;
 
     @ManyToOne(()=>Order, (order)=>order.items)
     order:Order;

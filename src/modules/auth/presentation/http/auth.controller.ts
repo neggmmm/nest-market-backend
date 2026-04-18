@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { RegisterUserDto } from './dto/registerUser.dto';
 import { LoginUserDto } from './dto/loginUser.dto';
 import { RegisterUserUseCase } from '../../application/use-cases/register-user.use-case';
@@ -28,11 +29,13 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @Throttle({ short: {}, long: {} })
   register(@Body() dto: RegisterUserDto) {
     return this.registerUserUseCase.execute(dto);
   }
 
   @Post('login')
+  @Throttle({ short: {} })
   async login(@Body() dto: LoginUserDto, @Res({ passthrough: true }) res) {
     const result = await this.loginUserUseCase.execute(dto);
     
@@ -48,6 +51,7 @@ export class AuthController {
   }
 
   @Post('refreshToken')
+  @Throttle({ short: {}, long: {} })
   refresh(@Req() req) {
     const token = req.cookies?.refresh_token;
     if (!token) {
@@ -64,6 +68,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @Throttle({ short: {}, long: {} })
   async logout(@Req() req, @Res({ passthrough: true }) res) {
     const result = await this.logoutUserUseCase.execute(req.cookies?.refresh_token);
     res.clearCookie('access_token');

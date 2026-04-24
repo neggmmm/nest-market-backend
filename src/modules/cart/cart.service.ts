@@ -33,49 +33,57 @@ export class CartService {
     });
   }
 
-  async addCartItem(productId: number, quantity: number, userId: number): Promise<CartResponseDto>{
-    const product = await this.productRepository.findOneBy({ id: productId });
-    if (!product) throw new NotFoundException();
+async addCartItem(productId: number,quantity: number,userId: number): Promise<CartResponseDto> {
+  const product = await this.productRepository.findOneBy({ id: productId });
+  if (!product) throw new NotFoundException('Product not found');
 
-    let cart = await this.cartRepository.findOne({
-      where: { userId },
-      relations: ['items', 'items.product'],
-    });
+  const price = Number(product.price); // ensure number
+  let cart = await this.cartRepository.findOne({
+    where: { userId },
+  });
 
-    if (!cart) {
-      cart = await this.cartRepository.save({ userId, items: [] });
-    }
-
-    let item = cart.items.find((i) => i.product.id === productId);
-
-    if (item) {
-      item.quantity += quantity;
-      item.totalPrice = item.quantity * product.price;
-      await this.cartItemRepository.save(item);
-    } else {
-      item = await this.cartItemRepository.save({
-        cart,
-        product,
-        quantity,
-        totalPrice: quantity * product.price,
-      });
-      cart.items.push(item);
-    }
-
-    const totalPrice = this.calculateTotal(cart);
-    return {
-      id: cart.id,
-      userId: cart.userId,
-      items: cart.items.map(item => ({
-        id: item.id,
-        quantity: item.quantity,
-        totalPrice: item.totalPrice,
-        product: item.product,
-      })),
-      totalPrice,
-    };
+  if (!cart) {
+    cart = await this.cartRepository.save({ userId });
   }
+  let item = await this.cartItemRepository.findOne({
+    where: {
+      cart: { id: cart.id },
+      product: { id: productId },
+    },
+    relations: ['product', 'cart'],
+  });
 
+  if (item) {
+    item.quantity += quantity;
+    item.totalPrice = item.quantity * price;
+  } else {
+    item = this.cartItemRepository.create({
+      cart,
+      product,
+      quantity,
+      totalPrice: quantity * price,
+    });
+  }
+  await this.cartItemRepository.save(item);
+  const updatedCart = await this.cartRepository.findOne({
+    where: { id: cart.id },
+    relations: ['items', 'items.product'],
+  });
+
+  const totalPrice = this.calculateTotal(updatedCart);
+
+  return {
+    id: updatedCart!.id,
+    userId: updatedCart!.userId,
+    items: updatedCart!.items.map((i) => ({
+      id: i.id,
+      quantity: i.quantity,
+      totalPrice: i.totalPrice,
+      product: i.product,
+    })),
+    totalPrice,
+  };
+}
   async updateQuantity(itemId: number, quantity: number, userId: number) {
     const item = await this.checkItem(itemId)
 
@@ -94,8 +102,8 @@ export class CartService {
     return { cart, total };
   }
 
-  async deleteCart(userId:number): Promise<void>{
-    await this.cartRepository.delete({userId});
+  async deleteCart(userId: number): Promise<void> {
+    await this.cartRepository.delete({ userId });
   }
   async removeItem(itemId: number, userId: number) {
     const item = await this.checkItem(itemId)

@@ -11,6 +11,7 @@ import { validationSchema } from './config/validation';
 import { ProductsModule } from './modules/products/products.module';
 import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
@@ -30,14 +31,14 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
         password: configService.get('database.password'),
         database: configService.get('database.name'),
         autoLoadEntities: true,
-        synchronize: false
+        synchronize: true
       }),
     }),
     ThrottlerModule.forRoot([
       {
         name: 'short',
         ttl: 60000, // 1 minute
-        limit: 3,
+        limit: 10,
       },
       {
         name: 'long',
@@ -49,7 +50,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     UsersModule,
     ProductsModule,
     CartModule,
-    OrderModule
+    OrderModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [

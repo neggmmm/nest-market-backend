@@ -16,5 +16,11 @@ export default()=> ({
         region: process.env.AWS_REGION,
         bucket: process.env.AWS_S3_BUCKET,
         productsPrefix: process.env.AWS_S3_PRODUCTS_PREFIX || 'products',
+    },
+    paymob: {
+        apiKey: process.env.PAYMOB_API_KEY!,
+        integrationId: process.env.PAYMOB_INTEGRATION_ID!,
+        iframeId: process.env.PAYMOB_IFRAME_ID!,
+        hmacSecret: process.env.PAYMOB_HMAC_SECRET!,
     }
 })

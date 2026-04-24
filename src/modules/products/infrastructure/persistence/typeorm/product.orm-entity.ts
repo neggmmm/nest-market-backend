@@ -1,5 +1,5 @@
 import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { CartItem } from 'src/modules/cart/entity/cartItem.entity';
+import { CartItem } from '../../../../cart/entity/cartItem.entity';
 
 @Entity('products')
 export class ProductOrmEntity {
@@ -17,6 +17,6 @@ export class ProductOrmEntity {
   @Column({ nullable: true })
   image?: string;
 
-  @OneToMany(() => CartItem, (cartItem) => cartItem.product)
+  @OneToMany(() => CartItem, (cartItem: CartItem) => cartItem.product)
   cartItems: CartItem[];
 }

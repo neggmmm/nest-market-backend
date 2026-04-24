@@ -8,6 +8,10 @@ export enum orderStatus{
     DELIVERED = "deliverd"
 }
 
+export enum orderMethods{
+    COD = "Cash on delivery",
+    ONLINE = "Online"
+}
 @Entity()
 export class Order {
     @PrimaryGeneratedColumn()
@@ -19,11 +23,17 @@ export class Order {
     @Column()
     userId: number;
 
+    @Column({type:"enum", enum:orderMethods, default:orderMethods.COD})
+    method:orderMethods;
+
     @Column({type:"enum",enum:orderStatus,default:orderStatus.PENDING})
-    status: orderStatus
+    status: orderStatus;
 
     @Column()
     totalPrice: number;
+
+    @Column({ nullable: true })
+    paymobOrderId: string;
 
     @CreateDateColumn()
     createdAt: Date;

@@ -1,5 +1,5 @@
 import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { CartItem } from '../../../../cart/entity/cartItem.entity';
+import { CartItem } from 'src/modules/cart/infrastructure/typeorm/cartItem.entity';
 
 @Entity('products')
 export class ProductOrmEntity {

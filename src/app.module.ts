@@ -23,16 +23,24 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('database.host'),
-        port: configService.get('database.port'),
-        username: configService.get('database.username'),
-        password: configService.get('database.password'),
-        database: configService.get('database.name'),
-        autoLoadEntities: true,
-        synchronize: true
-      }),
+      useFactory: (configService: ConfigService) => {
+        const ssl = configService.get<boolean>('database.ssl')
+          ? { rejectUnauthorized: false }
+          : false;
+
+        return {
+          type: 'postgres',
+          url: configService.get<string>('database.url'),
+          host: configService.get('database.host'),
+          port: configService.get('database.port'),
+          username: configService.get('database.username'),
+          password: configService.get('database.password'),
+          database: configService.get('database.name'),
+          ssl,
+          autoLoadEntities: true,
+          synchronize: true
+        };
+      },
     }),
     ThrottlerModule.forRoot([
       {

@@ -11,8 +11,8 @@ export class CartItem {
     @Column()
     quantity: number;
 
-    // Cached total for this line item (quantity * product.price).
-    @Column()
+    // Money column: keeps decimal totals such as 10.99 instead of integer-only values.
+    @Column('decimal', { precision: 10, scale: 2 })
     totalPrice: number;
 
     // Association to Product entity. Each cart item belongs to one product.

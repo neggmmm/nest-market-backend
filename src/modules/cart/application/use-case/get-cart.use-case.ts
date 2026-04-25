@@ -1,19 +1,18 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { Cart } from "../../entity/cart.entity";
+import { Inject, Injectable } from '@nestjs/common';
+import { Cart } from '../../domain/entities/cart';
+import { CART_REPOSITORY } from '../../domain/repositories/cart.repository';
+import type { CartRepository } from '../../domain/repositories/cart.repository';
 
 @Injectable()
+export class GetCart {
+  constructor(
+    // Clean architecture boundary: query reads from the domain repository port.
+    @Inject(CART_REPOSITORY)
+    private readonly cartRepository: CartRepository,
+  ) {}
 
-export class GetCart{
-    constructor(
-        @InjectRepository(Cart)
-        private cartRepository : Repository<Cart>
-    ){}
-    execute(userId: number): Promise<Cart | null> {
-        return this.cartRepository.findOne({
-          where: { userId },
-          relations: ['items', 'items.product'],
-        });
-    }
+  // Use case: load the current user's cart, if it exists.
+  execute(userId: number): Promise<Cart | null> {
+    return this.cartRepository.findByUserId(userId);
   }
+}

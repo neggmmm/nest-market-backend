@@ -1,32 +1,24 @@
-import { ForbiddenException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { CartItem } from "../../entity/cartItem.entity";
-import { Repository } from "typeorm";
-import { CheckItem } from "./check-item.use-case";
-import { GetCart } from "./get-cart.use-case";
-import { CalculateTotal } from "./calculate-total-use-case";
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Cart } from '../../domain/entities/cart';
+import { CART_REPOSITORY } from '../../domain/repositories/cart.repository';
+import type { CartRepository } from '../../domain/repositories/cart.repository';
 
+@Injectable()
 export class RemoveItem {
-    constructor(
-        @InjectRepository(CartItem)
-        private cartItemRepository : Repository<CartItem>,
-        private readonly checkItem : CheckItem,
-        private readonly getCart : GetCart,
-        private readonly calculateTotal : CalculateTotal,
-    ){}
-    async execute (itemId: number, userId: number){
+  constructor(
+    // Clean architecture boundary: ownership-safe removal is handled behind the port.
+    @Inject(CART_REPOSITORY)
+    private readonly cartRepository: CartRepository,
+  ) {}
 
-        const item = await this.checkItem.execute(itemId)
-    
-        if (item.cart.userId !== userId) {
-          throw new ForbiddenException();
-        }
-    
-        await this.cartItemRepository.remove(item);
-    
-        const cart = await this.getCart.execute(userId);
-        const total = this.calculateTotal.execute(cart);
-    
-        return { cart, total };
+  // Use case: remove one item from the authenticated user's cart.
+  async execute(itemId: number, userId: number): Promise<Cart | null> {
+    const cart = await this.cartRepository.removeItem({ itemId, userId });
+
+    if (!cart) {
+      throw new NotFoundException('Cart item not found');
     }
+
+    return cart;
   }
+}

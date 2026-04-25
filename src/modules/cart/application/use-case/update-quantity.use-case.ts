@@ -1,36 +1,28 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { CartItem } from "../../entity/cartItem.entity";
-import { Repository } from "typeorm";
-import { CalculateTotal } from "./calculate-total-use-case";
-import { CheckItem } from "./check-item.use-case";
-import { GetCart } from "./get-cart.use-case";
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Cart } from '../../domain/entities/cart';
+import { CART_REPOSITORY } from '../../domain/repositories/cart.repository';
+import type { CartRepository } from '../../domain/repositories/cart.repository';
 
 @Injectable()
-
 export class UpdateQuantity {
-    constructor(
-        @InjectRepository(CartItem)
-        private cartItemRepository : Repository<CartItem>,
-        private readonly calculateTotal : CalculateTotal,
-        private readonly checkItem : CheckItem,
-        private readonly getCart : GetCart
-    ){}
-    async execute(itemId: number, quantity: number, userId: number){
-        const item = await this.checkItem.execute(itemId)
-    
-        if (item.cart.userId !== userId) {
-          throw new ForbiddenException();
-        }
-    
-        item.quantity = quantity;
-        item.totalPrice = quantity * item.product.price;
-    
-        await this.cartItemRepository.save(item);
-    
-        const cart = await this.getCart.execute(userId);
-        const total = this.calculateTotal.execute(cart);
-    
-        return { cart, total };
+  constructor(
+    // Clean architecture boundary: the use case updates through the repository port.
+    @Inject(CART_REPOSITORY)
+    private readonly cartRepository: CartRepository,
+  ) {}
+
+  // Use case: set quantity for one item owned by the authenticated user.
+  async execute(itemId: number, quantity: number, userId: number): Promise<Cart> {
+    if (quantity < 1) {
+      throw new BadRequestException('Quantity must be at least 1');
     }
+
+    const cart = await this.cartRepository.updateItemQuantity({ itemId, quantity, userId });
+
+    if (!cart) {
+      throw new NotFoundException('Cart item not found');
+    }
+
+    return cart;
   }
+}

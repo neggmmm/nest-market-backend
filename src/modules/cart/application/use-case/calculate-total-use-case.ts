@@ -1,11 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { Cart } from "../../entity/cart.entity";
+import { Injectable } from '@nestjs/common';
+import { Cart } from '../../domain/entities/cart';
 
 @Injectable()
-
 export class CalculateTotal {
-    execute(cart?: Cart | null){
-        if (!cart?.items?.length) return 0;
-        return cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
-    }
+  // Kept as a use case for compatibility, but delegates to the domain cart total.
+  execute(cart?: Cart | null): number {
+    return cart?.totalPrice ?? 0;
   }
+}

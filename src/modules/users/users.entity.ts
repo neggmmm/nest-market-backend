@@ -1,7 +1,7 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Cart } from "../cart/infrastructure/typeorm/cart.entity";
 
-@Entity()
+@Entity('users')
 export class User {
     @PrimaryGeneratedColumn()
     id: number;
@@ -14,7 +14,7 @@ export class User {
 
     @Column({
         type: 'enum',
-        enum: ['admin', 'customer', 'saller'],
+        enum: ['superAdmin','admin', 'customer', 'provider','delivery'],
         default: 'customer'
     })
     role: string;

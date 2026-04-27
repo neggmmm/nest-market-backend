@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -22,6 +23,10 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ListProductsQueryDto } from './dto/list-products-query.dto';
 import { Product } from '../../domain/entities/product';
+import { Roles } from '../../../../common/decorators/role.decorator';
+import { Role } from '../../../../common/enum/role.enum';
+import { AuthorizationGuard } from '../../../../common/guards/authorization.guard';
+import { AuthGuard } from '../../../auth/presentation/http/guard/auth.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -54,6 +59,8 @@ export class ProductsController {
   }
 
   @Post()
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, AuthorizationGuard)
   @UseInterceptors(
     FileInterceptor('image', {
       storage: memoryStorage(),

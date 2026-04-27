@@ -1,5 +1,6 @@
 export default()=> ({
     port: process.env.PORT!,
+    frontendUri : process.env.FRONTEND_URI,
     database:{
         url: process.env.DATABASE_URL,
         host: process.env.DATABASE_HOST!,

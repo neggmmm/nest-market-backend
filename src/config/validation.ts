@@ -27,6 +27,7 @@ export const validationSchema = Joi.object({
     then: Joi.string().optional(),
     otherwise: Joi.string().required(),
   }),
+  FRONTEND_URI: Joi.string().required(),
   DATABASE_SSL: Joi.boolean().optional(),
   JWT_SECRET_KEY: Joi.string().required(),
   AWS_ACCESS_KEY_ID: Joi.string().required(),

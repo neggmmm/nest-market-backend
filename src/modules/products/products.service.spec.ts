@@ -15,6 +15,7 @@ describe('Products use cases', () => {
     findAll: jest.Mock;
     findById: jest.Mock;
     create: jest.Mock;
+    transaction: jest.Mock;
   };
   let fileStorage: {
     save: jest.Mock;
@@ -25,6 +26,7 @@ describe('Products use cases', () => {
       findAll: jest.fn(),
       findById: jest.fn(),
       create: jest.fn(),
+      transaction: jest.fn((cb) => cb(productRepository)),
     };
 
     fileStorage = {
@@ -54,8 +56,8 @@ describe('Products use cases', () => {
 
   it('lists products from the repository', async () => {
     const products = [
-      new Product(1, 'Keyboard', 1200, 'uploads/images/keyboard.png'),
-      new Product(2, 'Mouse', 800, 'uploads/images/mouse.png'),
+      new Product(1, 'Keyboard', 1200, 10, 'uploads/images/keyboard.png'),
+      new Product(2, 'Mouse', 800, 10, 'uploads/images/mouse.png'),
     ];
 
     productRepository.findAll.mockResolvedValue({ data: products, total: 2 });
@@ -67,7 +69,7 @@ describe('Products use cases', () => {
   });
 
   it('creates a product and stores the uploaded image path', async () => {
-    const savedProduct = new Product(1, 'Laptop', 25000, 'uploads/images/laptop.png');
+    const savedProduct = new Product(1, 'Laptop', 25000, 10, 'uploads/images/laptop.png');
     const uploadedFile = { path: 'uploads/images/laptop.png' } as Express.Multer.File;
 
     fileStorage.save.mockResolvedValue('uploads/images/laptop.png');
@@ -76,6 +78,7 @@ describe('Products use cases', () => {
     const result = await createProductUseCase.execute({
       name: 'Laptop',
       price: 25000,
+      userId: 10,
       file: uploadedFile,
     });
 
@@ -83,13 +86,14 @@ describe('Products use cases', () => {
     expect(productRepository.create).toHaveBeenCalledWith({
       name: 'Laptop',
       price: 25000,
+      userId: 10,
       image: 'uploads/images/laptop.png',
     });
     expect(result).toEqual(savedProduct);
   });
 
   it('returns a product by id when it exists', async () => {
-    const product = new Product(7, 'Monitor', 5000, 'uploads/images/monitor.png');
+    const product = new Product(7, 'Monitor', 5000, 10, 'uploads/images/monitor.png');
 
     productRepository.findById.mockResolvedValue(product);
 

@@ -23,6 +23,7 @@ export interface ListProductQueryData{
 export interface CreateProductRepositoryData {
   name: string;
   price: number;
+  userId: number;
   image?: string;
 }
 

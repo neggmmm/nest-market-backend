@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -23,10 +24,15 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ListProductsQueryDto } from './dto/list-products-query.dto';
 import { Product } from '../../domain/entities/product';
-import { Roles } from '../../../../common/decorators/role.decorator';
-import { Role } from '../../../../common/enum/role.enum';
 import { AuthorizationGuard } from '../../../../common/guards/authorization.guard';
 import { AuthGuard } from '../../../auth/presentation/http/guard/auth.guard';
+
+interface AuthenticatedRequest {
+  user: {
+    sub: number;
+    role: string;
+  };
+}
 
 @Controller('products')
 export class ProductsController {
@@ -59,7 +65,6 @@ export class ProductsController {
   }
 
   @Post()
-  @Roles(Role.ADMIN)
   @UseGuards(AuthGuard, AuthorizationGuard)
   @UseInterceptors(
     FileInterceptor('image', {
@@ -77,28 +82,42 @@ export class ProductsController {
   createProduct(
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: CreateProductDto,
+    @Req() req: AuthenticatedRequest,
   ): Promise<Product> {
     return this.createProductUseCase.execute({
       name: dto.name,
       price: dto.price,
+      userId: req.user.sub,
       file,
     });
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   updateProduct(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductDto,
+    @Req() req: AuthenticatedRequest,
   ): Promise<Product> {
     return this.updateProductUseCase.execute({
       id,
+      userId: req.user.sub,
+      userRole: req.user.role,
       name: dto.name,
       price: dto.price,
     });
   }
 
   @Delete(':id')
-  deleteProduct(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.deleteProductUseCase.execute(id);
+  @UseGuards(AuthGuard)
+  deleteProduct(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<void> {
+    return this.deleteProductUseCase.execute({
+      id,
+      userId: req.user.sub,
+      userRole: req.user.role,
+    });
   }
 }

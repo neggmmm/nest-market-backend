@@ -6,11 +6,11 @@ import {
 } from '../../domain/repositories/product.repository';
 import type { ProductRepository } from '../../domain/repositories/product.repository';
 import { Product } from '../../domain/entities/product';
-import { DataSource } from 'typeorm';
 
 export interface CreateProductCommand {
   name: string;
   price: number;
+  userId: number;
   file?: Express.Multer.File;
 }
 
@@ -21,7 +21,6 @@ export class CreateProductUseCase {
     private readonly productRepository: ProductRepository,
     @Inject(FILE_STORAGE)
     private readonly fileStorage: FileStorage,
-    private readonly dataSource: DataSource,
   ) { }
 
   async execute(command: CreateProductCommand): Promise<Product> {
@@ -32,6 +31,8 @@ export class CreateProductUseCase {
         return repo.create({
           name: command.name,
           price: command.price,
+          // The authenticated user's id becomes the product owner.
+          userId: command.userId,
           image,
         });
       });

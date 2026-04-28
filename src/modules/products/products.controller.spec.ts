@@ -5,6 +5,7 @@ import { GetProductUseCase } from './application/use-cases/get-product.use-case'
 import { CreateProductUseCase } from './application/use-cases/create-product.use-case';
 import { UpdateProductUseCase } from './application/use-cases/update-product.use-case';
 import { DeleteProductUseCase } from './application/use-cases/delete-product.use-case';
+import { JwtService } from '@nestjs/jwt';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
@@ -29,6 +30,7 @@ describe('ProductsController', () => {
         { provide: CreateProductUseCase, useValue: createProductUseCase },
         { provide: UpdateProductUseCase, useValue: updateProductUseCase },
         { provide: DeleteProductUseCase, useValue: deleteProductUseCase },
+        { provide: JwtService, useValue: { verify: jest.fn() } },
       ],
     }).compile();
 
@@ -58,15 +60,17 @@ describe('ProductsController', () => {
   it('passes body and uploaded file to the create product use case', async () => {
     const file = { path: 'uploads/images/laptop.png' } as Express.Multer.File;
     const dto = { name: 'Laptop', price: 25000 };
-    const createdProduct = { id: 1, ...dto, image: file.path };
+    const req = { user: { sub: 10, role: 'provider' } };
+    const createdProduct = { id: 1, ...dto, userId: 10, image: file.path };
 
     createProductUseCase.execute.mockResolvedValue(createdProduct);
 
-    const result = await controller.createProduct(file, dto);
+    const result = await controller.createProduct(file, dto, req);
 
     expect(createProductUseCase.execute).toHaveBeenCalledWith({
       name: 'Laptop',
       price: 25000,
+      userId: 10,
       file,
     });
     expect(result).toEqual(createdProduct);

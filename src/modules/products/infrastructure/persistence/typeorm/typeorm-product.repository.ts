@@ -31,7 +31,7 @@ export class TypeormProductRepository implements ProductRepository {
     } = query;
 
     const qb = this.ormRepository.createQueryBuilder('product')
-      .select(['product.id', 'product.name', 'product.price', 'product.image']);
+      .select(['product.id', 'product.name', 'product.price', 'product.userId', 'product.image']);
 
     new SearchSepecification(search).apply(qb)
     new PriceSpecifictaion(minPrice, maxPrice).apply(qb)
@@ -80,6 +80,6 @@ export class TypeormProductRepository implements ProductRepository {
   }
 
   private toDomain(product: ProductOrmEntity): Product {
-    return new Product(product.id, product.name, Number(product.price), product.image);
+    return new Product(product.id, product.name, Number(product.price), product.userId, product.image);
   }
 }

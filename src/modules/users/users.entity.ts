@@ -1,5 +1,6 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Cart } from "../cart/infrastructure/typeorm/cart.entity";
+import { ProductOrmEntity } from "../products/infrastructure/persistence/typeorm/product.orm-entity";
 
 @Entity('users')
 export class User {
@@ -24,4 +25,7 @@ export class User {
 
     @OneToOne(() => Cart, cart => cart.user)
     cart: Cart;
+
+    @OneToMany(() => ProductOrmEntity, product => product.owner)
+    products: ProductOrmEntity[];
 }

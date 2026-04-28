@@ -134,6 +134,7 @@ export class TypeormCartRepository implements CartRepository {
         item.product.id,
         item.product.name,
         Number(item.product.price),
+        item.product.userId,
         item.product.image,
       ),
     );

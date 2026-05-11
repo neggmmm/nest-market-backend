@@ -7,6 +7,7 @@ import { OrderResponseDto } from './dto/orderResponse.dto';
 import { orderMethods, orderStatus } from './entity/order.entity';
 import { GetCart } from '../cart/application/use-case/get-cart.use-case';
 import { DeleteCart } from '../cart/application/use-case/delete-cart.use-case';
+import { OrderQueryDto } from './dto/order-query.dto';
 
 @Injectable()
 export class OrderService {
@@ -63,7 +64,25 @@ export class OrderService {
     };
   }
 
-  async getAllOrders(userId: number) {
+  // Get all orders with pagination for admin
+  async getAllOrders(query: OrderQueryDto) {
+    const { page = 1, limit = 10 } = query;
+    const skip = (page - 1) * limit;
+
+    // Fetch orders with pagination and count total
+    const [orders, total] = await this.orderRepository.findAndCount({
+      relations: ['items', 'items.product'],
+      order: { createdAt: 'DESC' },
+      skip,
+      take: limit,
+    });
+
+    return {
+      data: orders,
+      total,
+    };
+  }
+  async getMyOrders(userId: number) {
     return this.orderRepository.find({
       where: { userId },
       relations: ['items', 'items.product'],

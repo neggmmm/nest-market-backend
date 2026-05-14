@@ -13,6 +13,8 @@ import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { CommonModule } from './common/common.module';
+import { AuthorizationGuard } from './common/guards/authorization.guard';
 
 @Module({
   imports: [
@@ -60,6 +62,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     CartModule,
     OrderModule,
     PaymentsModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [
@@ -67,6 +70,10 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthorizationGuard,
     },
   ],
 })

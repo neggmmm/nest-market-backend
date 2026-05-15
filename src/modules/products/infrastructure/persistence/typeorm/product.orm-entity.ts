@@ -1,6 +1,7 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CartItem } from '../../../../cart/infrastructure/typeorm/cartItem.entity';
 import { User } from '../../../../users/users.entity';
+import { CategoryOrmEntity } from './category.orm-entity';
 
 @Entity('products')
 export class ProductOrmEntity {
@@ -11,11 +12,19 @@ export class ProductOrmEntity {
   @Column({ nullable: true })
   userId: number;
 
+  @Index()
+  @Column({ nullable: true })
+  categoryId: number;
+
   // Nullable keeps the app compatible with products that existed before
   // ownership was introduced. New products still receive userId on creation.
   @ManyToOne(() => User, (user: User) => user.products, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   owner: User;
+
+  @ManyToOne(() => CategoryOrmEntity, (category) => category.products, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'categoryId' })
+  category: CategoryOrmEntity;
 
   @Index()
   @Column()

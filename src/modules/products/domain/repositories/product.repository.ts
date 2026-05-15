@@ -17,7 +17,8 @@ export interface ListProductQueryData{
     order: 'ASC' | 'DESC';
     minPrice?: number;
     maxPrice?: number;
-    search?: string
+    search?: string;
+    categoryId?: number;
 }
 
 export interface CreateProductRepositoryData {
@@ -25,6 +26,7 @@ export interface CreateProductRepositoryData {
   price: number;
   userId: number;
   image?: string;
+  categoryId?: number;
 }
 
 export interface UpdateProductRepositoryData {

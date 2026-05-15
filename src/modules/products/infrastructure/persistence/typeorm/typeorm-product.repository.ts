@@ -28,6 +28,7 @@ export class TypeormProductRepository implements ProductRepository {
       minPrice,
       maxPrice,
       search,
+      categoryId,
     } = query;
 
     const qb = this.ormRepository.createQueryBuilder('product')
@@ -35,6 +36,10 @@ export class TypeormProductRepository implements ProductRepository {
 
     new SearchSepecification(search).apply(qb)
     new PriceSpecifictaion(minPrice, maxPrice).apply(qb)
+
+    if (categoryId) {
+      qb.andWhere('product.categoryId = :categoryId', { categoryId });
+    }
 
     const allowedSortFields = ['id', 'price', 'name'];
     const sortField = allowedSortFields.includes(sortBy) ? sortBy : 'id';

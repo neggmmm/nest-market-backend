@@ -1,98 +1,489 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Nest Market Backend - API Documentation
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive e-commerce backend built with NestJS, featuring product management, shopping cart, orders, payments, and user authentication.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**Live API:** `http://13.53.40.13:8000/`
 
-## Description
+## 🚀 Deployment
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Server:** AWS EC2
+- **Database:** PostgreSQL (hosted)
+- **File Storage:** AWS S3 (for product images)
+- **Node.js:** v18+
+- **NestJS:** v10+
 
-## Project setup
+## 📋 Table of Contents
 
+- [Authentication](#authentication)
+- [Users API](#users-api)
+- [Products API](#products-api)
+- [Cart API](#cart-api)
+- [Orders API](#orders-api)
+- [Payments API](#payments-api)
+- [Error Handling](#error-handling)
+
+---
+
+## 🔐 Authentication
+
+All protected endpoints require authentication via **HTTP cookies** (`access_token`).
+
+### Login
 ```bash
-$ npm install
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
 ```
 
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+**Response:**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "refresh_token_here"
+}
 ```
 
-## Run tests
+The `access_token` is automatically set as an HTTP-only cookie.
 
+### Register
 ```bash
-# unit tests
-$ npm run test
+POST /auth/register
+Content-Type: application/json
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123"
+}
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### Refresh Token
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+POST /auth/refresh-token
+(Cookie: refresh_token required)
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Get Current User
+```bash
+GET /auth/me
+(Cookie: access_token required)
+```
 
-## Resources
+### Logout
+```bash
+POST /auth/logout
+(Cookie: access_token required)
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 👥 Users API
 
-## Support
+### Get All Users (Admin Only)
+```bash
+GET /users?page=1&limit=10
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "role": "admin"
+    }
+  ],
+  "total": 100,
+  "page": 1,
+  "lastPage": 10
+}
+```
 
-## Stay in touch
+### Search Users (Admin Only)
+```bash
+GET /users/search?q=john@example.com&page=1&limit=10
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Searches by email or name (case-insensitive).
 
-## License
+### Get User by ID (Admin Only)
+```bash
+GET /users/:id
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Create User (Admin Only)
+```bash
+POST /users
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "password123",
+  "role": "customer"
+}
+```
+
+### Update User (Admin Only)
+```bash
+PATCH /users/:id
+Content-Type: application/json
+
+{
+  "name": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "role": "admin"
+}
+```
+
+### Delete User (Admin Only)
+```bash
+DELETE /users/:id
+```
+
+---
+
+## 📦 Products API
+
+### Get All Products (No Auth Required)
+```bash
+GET /products?page=1&limit=10&search=laptop&categoryId=1&minPrice=100&maxPrice=1000&sortBy=price&order=ASC
+```
+
+**Query Parameters:**
+- `page` - Page number (default: 1)
+- `limit` - Results per page (default: 10, max: 50)
+- `search` - Search by product name
+- `categoryId` - Filter by category ID
+- `minPrice` - Minimum price
+- `maxPrice` - Maximum price
+- `sortBy` - Sort field: `id`, `price`, or `name` (default: `id`)
+- `order` - Sort order: `ASC` or `DESC` (default: `ASC`)
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Laptop",
+      "price": 999.99,
+      "image": "https://bucket.s3.amazonaws.com/product-1.jpg",
+      "userId": 2
+    }
+  ],
+  "total": 50,
+  "page": 1,
+  "limit": 10
+}
+```
+
+### Get Product by ID (No Auth Required)
+```bash
+GET /products/:id
+```
+
+### Create Product (Authenticated)
+```bash
+POST /products
+Content-Type: multipart/form-data
+
+Form Data:
+- name: "New Laptop"
+- price: 1299.99
+- categoryId: 1 (optional)
+- image: <file> (required, JPEG/PNG/WebP, max 5MB)
+```
+
+**Response:**
+```json
+{
+  "id": 5,
+  "name": "New Laptop",
+  "price": 1299.99,
+  "image": "https://bucket.s3.amazonaws.com/uploads/product-5.jpg",
+  "userId": 1
+}
+```
+
+### Update Product (Authenticated - Owner Only or Admin)
+```bash
+PATCH /products/:id
+Content-Type: application/json
+
+{
+  "name": "Updated Laptop",
+  "price": 1199.99
+}
+```
+
+### Delete Product (Authenticated - Owner Only or Admin)
+```bash
+DELETE /products/:id
+```
+
+---
+
+## 🛒 Cart API
+
+### Add Item to Cart (Authenticated)
+```bash
+POST /cart/add
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 2
+}
+```
+
+### Get Cart (Authenticated)
+```bash
+GET /cart
+```
+
+**Response:**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "items": [
+    {
+      "id": 1,
+      "productId": 1,
+      "quantity": 2,
+      "product": {
+        "id": 1,
+        "name": "Laptop",
+        "price": 999.99,
+        "image": "..."
+      }
+    }
+  ]
+}
+```
+
+### Remove Item from Cart (Authenticated)
+```bash
+DELETE /cart/:cartItemId
+```
+
+---
+
+## 📝 Orders API
+
+### Create Order (Authenticated)
+```bash
+POST /order/create
+Content-Type: application/json
+
+{
+  "paymentMethod": "COD"  // or "ONLINE"
+}
+```
+
+**Payment Methods:**
+- `COD` - Cash on Delivery (order accepted immediately)
+- `ONLINE` - Online payment (payment gateway required)
+
+**Response for COD:**
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "totalPrice": 2000.00,
+  "createdAt": "2026-05-15T10:30:00Z",
+  "items": [
+    {
+      "productId": 1,
+      "productName": "Laptop",
+      "quantity": 2,
+      "price": 999.99
+    }
+  ]
+}
+```
+
+**Response for ONLINE:**
+```json
+{
+  "orderId": 1,
+  "paymentRequired": true
+}
+```
+
+### Get My Orders (Authenticated)
+```bash
+GET /order
+```
+
+### Get Order by ID (Authenticated - Owner Only)
+```bash
+GET /order/:id
+```
+
+### Get All Orders (Admin Only)
+```bash
+GET /order/admin/orders?page=1&limit=10
+```
+
+---
+
+## 💳 Payments API
+
+### Process Payment (Authenticated)
+```bash
+POST /payments/paymob
+Content-Type: application/json
+
+{
+  "orderId": 1,
+  "amount": 2000.00,
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "phone": "+20123456789"
+}
+```
+
+Integration with **Paymob** payment gateway.
+
+---
+
+## ❌ Error Handling
+
+### Common Error Responses
+
+**Unauthorized (401)**
+```json
+{
+  "statusCode": 401,
+  "message": "No Token Provided"
+}
+```
+
+**Forbidden (403)**
+```json
+{
+  "statusCode": 403,
+  "message": "You do not have the required role to access this resource"
+}
+```
+
+**Not Found (404)**
+```json
+{
+  "statusCode": 404,
+  "message": "User Not Found"
+}
+```
+
+**Conflict (409)**
+```json
+{
+  "statusCode": 409,
+  "message": "Email already exists"
+}
+```
+
+**Bad Request (400)**
+```json
+{
+  "statusCode": 400,
+  "message": "Validation failed",
+  "errors": ["price must be a positive number"]
+}
+```
+
+---
+
+## 🔑 User Roles
+
+- `customer` - Regular user (default)
+- `provider` - Seller/vendor
+- `admin` - Administrator
+- `superAdmin` - Super administrator
+- `delivery` - Delivery personnel
+
+---
+
+## 🖼️ Image Upload
+
+Product images are uploaded to **AWS S3** and stored with the following structure:
+- Max file size: 5MB
+- Allowed formats: JPEG, PNG, WebP
+- Public URL format: `https://bucket.s3.amazonaws.com/uploads/product-{id}.jpg`
+
+---
+
+## 📊 Database Models
+
+### User
+- `id` - Primary key
+- `name` - User name
+- `email` - Email (unique)
+- `password` - Hashed password
+- `role` - User role enum
+- `cart` - One-to-one relationship
+- `products` - One-to-many products owned
+
+### Product
+- `id` - Primary key
+- `name` - Product name
+- `price` - Product price (decimal)
+- `image` - S3 URL
+- `userId` - Owner ID
+- `categoryId` - Category ID (optional)
+- `cartItems` - One-to-many cart items
+- `owner` - User relationship
+- `category` - Category relationship
+
+### Category
+- `id` - Primary key
+- `name` - Category name (unique)
+- `description` - Category description (optional)
+- `products` - One-to-many products
+
+### Cart
+- `id` - Primary key
+- `userId` - User ID
+- `items` - One-to-many cart items
+
+### Order
+- `id` - Primary key
+- `userId` - User ID
+- `name` - Order name
+- `totalPrice` - Total amount
+- `method` - Payment method (COD/ONLINE)
+- `status` - Order status (PENDING/ACCEPTED/DELIVERING/DELIVERED)
+- `paymobOrderId` - Paymob reference
+- `items` - One-to-many order items
+- `createdAt` - Timestamp
+
+---
+
+## 🔒 Security Features
+
+- ✅ JWT authentication with HTTP-only cookies
+- ✅ Password hashing with bcrypt
+- ✅ Role-based authorization guards
+- ✅ Input validation & sanitization
+- ✅ CORS enabled for frontend
+- ✅ Rate limiting (10 requests/min, 10 requests/10min)
+- ✅ Duplicate email validation
+- ✅ HTTPS recommended for production
+
+---
+
+## 📞 Support
+
+For API issues or bugs, please contact the development team.
+
+**API Base URL:** `http://13.53.40.13:8000/`
+

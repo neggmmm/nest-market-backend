@@ -35,6 +35,7 @@ export const validationSchema = Joi.object({
   AWS_REGION: Joi.string().required(),
   AWS_S3_BUCKET: Joi.string().required(),
   AWS_S3_PRODUCTS_PREFIX: Joi.string().optional(),
+  AWS_S3_USERS_PREFIX: Joi.string().optional(),
   PAYMOB_API_KEY: Joi.string().required(),
   PAYMOB_INTEGRATION_ID: Joi.alternatives(Joi.string(), Joi.number()).required(),
   PAYMOB_IFRAME_ID: Joi.alternatives(Joi.string(), Joi.number()).required(),

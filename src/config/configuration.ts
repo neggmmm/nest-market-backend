@@ -19,6 +19,7 @@ export default()=> ({
         region: process.env.AWS_REGION,
         bucket: process.env.AWS_S3_BUCKET,
         productsPrefix: process.env.AWS_S3_PRODUCTS_PREFIX || 'products',
+        usersPrefix: process.env.AWS_S3_USERS_PREFIX || 'users',
     },
     paymob: {
         apiKey: process.env.PAYMOB_API_KEY!,

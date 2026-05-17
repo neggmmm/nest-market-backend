@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './users.entity';
 import { QueryFailedError, Repository } from 'typeorm';
@@ -6,12 +6,15 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { hashpassword } from 'src/common/hashPassword';
 import { PaginationResponseDto } from '../../common/dto/pagination-response-dto';
+import { S3UserFileStorageService } from './infrastructure/storage/s3-user-file-storage.service';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>
+        ,
+        private readonly userFileStorage: S3UserFileStorageService,
     ) { }
 
     async findAll(page = 1, limit = 10): Promise<PaginationResponseDto<User>> {
@@ -37,8 +40,8 @@ export class UsersService {
         return user;
     }
 
-    findByEmail(email: string): Promise<User | null> {
-        return this.userRepository.createQueryBuilder('user')
+    async findByEmail(email: string): Promise<User | null> {
+        return await this.userRepository.createQueryBuilder('user')
             .addSelect("user.password")
             .where('user.email= :email', { email })
             .getOne();
@@ -85,13 +88,61 @@ export class UsersService {
             throw error;
         }
     }
-    async updateUser(id: number, dto: UpdateUserDto): Promise<User | null> {
+    async updateUser(
+        id: number,
+        dto: UpdateUserDto,
+        currentUser: { sub: number; role: string },
+    ): Promise<User> {
         const user = await this.findOne(id);
-        if (!user) {
-            throw new NotFoundException('User Not Found')
+
+        if (!this.canUpdateUser(id, currentUser)) {
+            throw new ForbiddenException('You may only update your own account unless you are an admin');
         }
-        Object.assign(user, dto)
+
+        if (dto.password) {
+            dto.password = await hashpassword(dto.password);
+        }
+
+        if (!['admin', 'superAdmin'].includes(currentUser.role) && currentUser.sub !== id) {
+            delete dto.role;
+            delete dto.profilePictureStatus;
+        }
+
+        Object.assign(user, dto);
         return this.userRepository.save(user);
+    }
+
+    async uploadUserProfilePicture(
+        id: number,
+        file: Express.Multer.File,
+        currentUser: { sub: number; role: string },
+    ): Promise<User> {
+        if (!this.canUpdateUser(id, currentUser)) {
+            throw new ForbiddenException('You may only upload a profile picture for your own account unless you are an admin');
+        }
+
+        const user = await this.findOne(id);
+        user.profilePicture = await this.userFileStorage.save(file) ?? user.profilePicture;
+        user.profilePictureStatus = 'pending';
+        return this.userRepository.save(user);
+    }
+
+    async reviewUserProfilePicture(
+        id: number,
+        approved: boolean,
+        currentUser: { sub: number; role: string },
+    ): Promise<User> {
+        if (!['admin', 'superAdmin'].includes(currentUser.role)) {
+            throw new ForbiddenException('Only admins can review profile pictures');
+        }
+
+        const user = await this.findOne(id);
+        user.profilePictureStatus = approved ? 'approved' : 'rejected';
+        return this.userRepository.save(user);
+    }
+
+    private canUpdateUser(id: number, currentUser: { sub: number; role: string }): boolean {
+        return ['admin', 'superAdmin'].includes(currentUser.role) || currentUser.sub === id;
     }
     async deleteUser(id: number): Promise<void> {
         await this.userRepository.delete(id);

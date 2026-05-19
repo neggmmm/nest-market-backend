@@ -10,6 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
 import { validationSchema } from './config/validation';
 import { ProductsModule } from './modules/products/products.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 import { CartModule } from './modules/cart/cart.module';
 import { OrderModule } from './modules/order/order.module';
 import { PaymentsModule } from './modules/payments/payments.module';
@@ -62,6 +63,7 @@ import { LoggerSharedModule } from './common/logger/logger.module';
     UsersModule,
     ProviderApplicationsModule,
     ProductsModule,
+    CategoriesModule,
     CartModule,
     OrderModule,
     PaymentsModule,

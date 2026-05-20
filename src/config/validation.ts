@@ -40,4 +40,10 @@ export const validationSchema = Joi.object({
   PAYMOB_INTEGRATION_ID: Joi.alternatives(Joi.string(), Joi.number()).required(),
   PAYMOB_IFRAME_ID: Joi.alternatives(Joi.string(), Joi.number()).required(),
   PAYMOB_HMAC_SECRET: Joi.string().optional(),
+  MAIL_HOST: Joi.string().required(),
+  MAIL_PORT: Joi.number().required(),
+  MAIL_SECURE: Joi.boolean().required(),
+  MAIL_USER: Joi.string().required(),
+  MAIL_PASS: Joi.string().required(),
+  MAIL_FROM: Joi.string().optional(),
 });

@@ -11,8 +11,10 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { RegisterUserDto } from './dto/registerUser.dto';
 import { LoginUserDto } from './dto/loginUser.dto';
+import { VerifyEmailDto } from './dto/verifyEmail.dto';
 import { RegisterUserUseCase } from '../../application/use-cases/register-user.use-case';
 import { LoginUserUseCase } from '../../application/use-cases/login-user.use-case';
+import { VerifyEmailUseCase } from '../../application/use-cases/verify-email.use-case';
 import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case';
 import { LogoutUserUseCase } from '../../application/use-cases/logout-user.use-case';
 import { MeUseCase } from '../../application/use-cases/me.use-case';
@@ -23,6 +25,7 @@ export class AuthController {
   constructor(
     private readonly registerUserUseCase: RegisterUserUseCase,
     private readonly loginUserUseCase: LoginUserUseCase,
+    private readonly verifyEmailUseCase: VerifyEmailUseCase,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
     private readonly logoutUserUseCase: LogoutUserUseCase,
     private readonly meUseCase: MeUseCase,
@@ -59,6 +62,11 @@ export class AuthController {
     }
 
     return this.refreshTokenUseCase.execute(token);
+  }
+
+  @Post('verify-email')
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.verifyEmailUseCase.execute(dto);
   }
 
   @Get('me')

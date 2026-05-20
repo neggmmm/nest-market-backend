@@ -30,12 +30,14 @@ export class UsersAuthReaderAdapter implements AuthUserReader {
     email: string;
     role: string;
     password?: string;
+    emailVerified?: boolean;
   }): AuthUser {
     return {
       id: user.id,
       email: user.email,
       role: user.role,
       password: user.password,
+      emailVerified: user.emailVerified,
     };
   }
 }

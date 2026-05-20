@@ -7,6 +7,7 @@ import { RefreshTokenOrmEntity } from './infrastructure/typeorm/refreshToken.orm
 import { AuthController } from './presentation/http/auth.controller';
 import { RegisterUserUseCase } from './application/use-cases/register-user.use-case';
 import { LoginUserUseCase } from './application/use-cases/login-user.use-case';
+import { VerifyEmailUseCase } from './application/use-cases/verify-email.use-case';
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
 import { LogoutUserUseCase } from './application/use-cases/logout-user.use-case';
 import { MeUseCase } from './application/use-cases/me.use-case';
@@ -37,6 +38,7 @@ import { AuthGuard } from './presentation/http/guard/auth.guard';
   providers: [
     RegisterUserUseCase,
     LoginUserUseCase,
+    VerifyEmailUseCase,
     RefreshTokenUseCase,
     LogoutUserUseCase,
     MeUseCase,

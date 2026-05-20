@@ -58,6 +58,7 @@ import { LoggerSharedModule } from './common/logger/logger.module';
         limit: 10
       }
     ]),
+    CommonModule,
     LoggerSharedModule,
     AuthModule,
     UsersModule,
@@ -67,7 +68,6 @@ import { LoggerSharedModule } from './common/logger/logger.module';
     CartModule,
     OrderModule,
     PaymentsModule,
-    CommonModule,
   ],
   controllers: [AppController],
   providers: [

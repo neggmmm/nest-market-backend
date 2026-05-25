@@ -6,6 +6,8 @@ import {
 } from '../../domain/repositories/product.repository';
 import type { ProductRepository } from '../../domain/repositories/product.repository';
 import { Product } from '../../domain/entities/product';
+import { AUDIT_LOG } from '../ports/audit-log.port';
+import type { AuditLogPort } from '../ports/audit-log.port'
 
 export interface CreateProductCommand {
   name: string;
@@ -22,21 +24,39 @@ export class CreateProductUseCase {
     private readonly productRepository: ProductRepository,
     @Inject(FILE_STORAGE)
     private readonly fileStorage: FileStorage,
+    @Inject(AUDIT_LOG)
+    private readonly audit: AuditLogPort
   ) { }
 
   async execute(command: CreateProductCommand): Promise<Product> {
     let image: string | undefined;
-      return await this.productRepository.transaction(async (repo) => {
-        image = await this.fileStorage.save(command.file);
+    return await this.productRepository.transaction(async (repo) => {
+      image = await this.fileStorage.save(command.file);
 
-        return repo.create({
-          name: command.name,
-          price: command.price,
-          // The authenticated user's id becomes the product owner.
-          userId: command.userId,
-          image,
-          categoryId: command.categoryId,
-        });
+      const product = await repo.create({
+        name: command.name,
+        price: command.price,
+        // The authenticated user's id becomes the product owner.
+        userId: command.userId,
+        image,
+        categoryId: command.categoryId,
       });
+
+      await this.audit.log({
+        action:
+          "PRODUCT_CREATED",
+
+        entity:
+          "Product",
+
+        entityId:
+          product.id,
+
+        performedBy:
+          command.userId
+      });
+
+      return product;
+    });
   }
 }

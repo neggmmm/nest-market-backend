@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Cart } from "../cart/infrastructure/typeorm/cart.entity";
 import { ProductOrmEntity } from "../products/infrastructure/persistence/typeorm/product.orm-entity";
+import { Address } from "../address/address.entity";
 
 @Entity('users')
 export class User {
@@ -24,7 +25,7 @@ export class User {
 
     @Column({ nullable: true })
     phoneExtension?: string;
-    
+
     @Column({ nullable: true })
     phoneNumber?: string;
 
@@ -40,10 +41,13 @@ export class User {
 
     @Column({
         type: 'enum',
-        enum: ['superAdmin','admin', 'customer', 'provider','delivery'],
+        enum: ['superAdmin', 'admin', 'customer', 'provider', 'delivery'],
         default: 'customer'
     })
     role!: string;
+
+    @OneToMany(() => Address, address => address.user)
+    addresses?: Address[];
 
     @Column({ select: false })
     password!: string;

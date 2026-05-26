@@ -16,6 +16,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { CommonModule } from './common/common.module';
 import { LoggerSharedModule } from './common/logger/logger.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { AddressModule } from './modules/address/address.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { AuditModule } from './modules/audit/audit.module';
     OrderModule,
     PaymentsModule,
     AuditModule,
+    AddressModule,
   ],
   providers: [
     {

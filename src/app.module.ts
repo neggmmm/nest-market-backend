@@ -17,6 +17,7 @@ import { CommonModule } from './common/common.module';
 import { LoggerSharedModule } from './common/logger/logger.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AddressModule } from './modules/address/address.module';
+import { ReviewModule } from './modules/review/review.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { AddressModule } from './modules/address/address.module';
     PaymentsModule,
     AuditModule,
     AddressModule,
+    ReviewModule,
   ],
   providers: [
     {

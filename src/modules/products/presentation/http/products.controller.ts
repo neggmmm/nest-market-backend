@@ -20,12 +20,15 @@ import { GetProductUseCase } from '../../application/use-cases/get-product.use-c
 import { CreateProductUseCase } from '../../application/use-cases/create-product.use-case';
 import { UpdateProductUseCase } from '../../application/use-cases/update-product.use-case';
 import { DeleteProductUseCase } from '../../application/use-cases/delete-product.use-case';
+import { GetLowStockProductsUseCase } from '../../application/use-cases/get-low-stock-products.use-case';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ListProductsQueryDto } from './dto/list-products-query.dto';
 import { Product } from '../../domain/entities/product';
 import { AuthorizationGuard } from '../../../../common/guards/authorization.guard';
 import { AuthGuard } from '../../../auth/presentation/http/guard/auth.guard';
+import { Roles } from 'src/common/decorators/role.decorator';
+import { Role } from 'src/common/enum/role.enum';
 
 interface AuthenticatedRequest {
   user: {
@@ -42,6 +45,7 @@ export class ProductsController {
     private readonly createProductUseCase: CreateProductUseCase,
     private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
+    private readonly getLowStockProductsUseCase: GetLowStockProductsUseCase,
   ) {}
 
   @Get()
@@ -57,6 +61,13 @@ export class ProductsController {
       limit: query.limit,
       total: result.total,
     };
+  }
+
+  @Get('low-stock')
+  @Roles(Role.PROVIDER)
+  @UseGuards(AuthGuard, AuthorizationGuard)
+  getLowStockProducts(@Req() req: AuthenticatedRequest): Promise<Product[]> {
+    return this.getLowStockProductsUseCase.execute(req.user.sub);
   }
 
   @Get(':id')
@@ -88,6 +99,8 @@ export class ProductsController {
       name: dto.name,
       price: dto.price,
       userId: req.user.sub,
+      stock: dto.stock ?? 0,
+      lowStockThreshold: dto.lowStockThreshold ?? 10,
       file,
       categoryId: dto.categoryId,
     });
@@ -106,6 +119,8 @@ export class ProductsController {
       userRole: req.user.role,
       name: dto.name,
       price: dto.price,
+      stock: dto.stock,
+      lowStockThreshold: dto.lowStockThreshold,
     });
   }
 

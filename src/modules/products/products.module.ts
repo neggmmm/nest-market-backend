@@ -14,6 +14,7 @@ import { GetProductUseCase } from './application/use-cases/get-product.use-case'
 import { CreateProductUseCase } from './application/use-cases/create-product.use-case';
 import { UpdateProductUseCase } from './application/use-cases/update-product.use-case';
 import { DeleteProductUseCase } from './application/use-cases/delete-product.use-case';
+import { GetLowStockProductsUseCase } from './application/use-cases/get-low-stock-products.use-case';
 import { ProductsController } from './presentation/http/products.controller';
 import { AuditModule } from '../audit/audit.module';
 
@@ -26,6 +27,7 @@ import { AuditModule } from '../audit/audit.module';
     CreateProductUseCase,
     UpdateProductUseCase,
     DeleteProductUseCase,
+    GetLowStockProductsUseCase,
     TypeormProductRepository,
     S3FileStorageService,
     AuditLogAdapter,

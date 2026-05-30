@@ -12,6 +12,8 @@ export interface UpdateProductCommand {
   userRole: string;
   name?: string;
   price?: number;
+  stock?: number;
+  lowStockThreshold?: number;
 }
 
 @Injectable()
@@ -39,6 +41,8 @@ export class UpdateProductUseCase {
     return this.productRepository.update(command.id, {
       name: command.name,
       price: command.price,
+      stock: command.stock,
+      lowStockThreshold: command.lowStockThreshold,
     });
   }
 }

@@ -13,6 +13,8 @@ export interface CreateProductCommand {
   name: string;
   price: number;
   userId: number;
+  stock?: number;
+  lowStockThreshold?: number;
   file?: Express.Multer.File;
   categoryId?: number;
 }
@@ -36,7 +38,8 @@ export class CreateProductUseCase {
       const product = await repo.create({
         name: command.name,
         price: command.price,
-        // The authenticated user's id becomes the product owner.
+        stock: command.stock ?? 0,
+        lowStockThreshold: command.lowStockThreshold ?? 10,
         userId: command.userId,
         image,
         categoryId: command.categoryId,

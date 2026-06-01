@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateCategoryUseCase } from '../../application/use-cases/create-category.use-case';
@@ -34,7 +34,7 @@ export class CategoriesController {
     return this.getUseCase.execute(Number(id));
   }
 
-  @Put(':id')
+  @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
     return this.updateUseCase.execute(Number(id), dto as any);
   }

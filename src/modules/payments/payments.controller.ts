@@ -9,6 +9,7 @@ import { PaymobWebhookDto } from './dto/paymob-webhook.dto';
 import { PaymobService } from './paymob.service';
 import { DeleteCart } from '../cart/application/use-case/delete-cart.use-case';
 
+@UseGuards(AuthGuard)
 @Controller('payments')
 export class PaymentsController {
   constructor(
@@ -19,7 +20,6 @@ export class PaymentsController {
   ) {}
 
   @Post()
-  @UseGuards(AuthGuard)
   async createPayment(@Req() req, @Body() dto: CreatePaymentDto): Promise<PaymentResponseDto> {
     const order = await this.orderRepository.findOne({
       where: { id: dto.orderId, userId: req.user.sub },

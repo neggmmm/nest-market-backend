@@ -13,6 +13,7 @@ import {
     UseGuards,
     UseInterceptors,
     ForbiddenException,
+    DefaultValuePipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -36,8 +37,8 @@ export class UsersController {
     @Roles(Role.ADMIN)
    
     findAll(
-        @Query('page', ParseIntPipe) page = 1,
-        @Query('limit', ParseIntPipe) limit = 10
+        @Query('page',new DefaultValuePipe(1), ParseIntPipe) page = 1,
+        @Query('limit',new DefaultValuePipe(10), ParseIntPipe) limit = 10
     ): Promise<PaginationResponseDto<User>> {
         return this.usersService.findAll(page, limit);
     }

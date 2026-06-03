@@ -1,10 +1,8 @@
-version: "3.8"
-
 services:
 
   # ─── NestJS API ─────────────────────────────────────────────────────────────
   api:
-    build: .
+    image: neggmmm/medspot-api:latest
     ports:
       - "8000:8000"
     env_file:
@@ -46,7 +44,6 @@ services:
     volumes:
       - redisdata:/data
     healthcheck:
-      # Shell expansion: if REDIS_PASSWORD is set, pass -a flag; otherwise skip it
       test: ["CMD-SHELL", "redis-cli -a '${REDIS_PASSWORD}' ping | grep PONG"]
       interval: 10s
       timeout: 5s

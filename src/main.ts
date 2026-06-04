@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as express from 'express';
+import compression from 'compression';
 import { ConfigService } from '@nestjs/config';
 import { AppLogger } from './common/logger/logger.service';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -19,6 +20,7 @@ async function bootstrap() {
   const cookieParser = require('cookie-parser');
 
   app.enableCors({ origin: frontendUri, credentials: true });
+  app.use(compression()); // gzip all responses — reduces payload 70-80%
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalFilters(new GlobalExceptionFilter(appLogger));
